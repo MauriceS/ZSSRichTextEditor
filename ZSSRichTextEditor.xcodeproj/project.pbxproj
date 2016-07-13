@@ -541,11 +541,6 @@
 				CLASSPREFIX = ZSS;
 				LastUpgradeCheck = 0630;
 				ORGANIZATIONNAME = "Zed Said Studio";
-				TargetAttributes = {
-					4581EB7B184845790048CAB0 = {
-						DevelopmentTeam = W5MUA6S7P7;
-					};
-				};
 			};
 			buildConfigurationList = 4581EB77184845790048CAB0 /* Build configuration list for PBXProject "ZSSRichTextEditor" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -740,7 +735,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Nicholas Hubbard (W5MUA6S7P7)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ZSSRichTextEditor/ZSSRichTextEditor-Prefix.pch";
@@ -846,7 +841,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Nicholas Hubbard (W5MUA6S7P7)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ZSSRichTextEditor/ZSSRichTextEditor-Prefix.pch";
