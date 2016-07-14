@@ -14,6 +14,9 @@
 #import "ZSSTextView.h"
 #import "UIWebView+GUIFixes.h"
 
+static const CGFloat HTMLViewTopInset = 15.0;
+static const CGFloat HTMLViewLeftRightInset = 15.0;
+
 @interface ZSSRichTextEditor ()
 @property (nonatomic, strong) UIScrollView *toolBarScroll;
 @property (nonatomic, strong) UIToolbar *toolbar;
@@ -49,6 +52,48 @@
 static CGFloat kJPEGCompression = 0.8;
 static CGFloat kDefaultScale = 0.5;
 
+- (void)createSourceViewWithFrame:(CGRect)frame
+{
+    NSAssert(!_sourceView, @"The source view must not exist when this method is called!");
+    
+    _sourceView = [[ZSSTextView alloc] initWithFrame:frame];
+    _sourceView.autocapitalizationType = UITextAutocapitalizationTypeNone;
+    _sourceView.autocorrectionType = UITextAutocorrectionTypeNo;
+    _sourceView.autoresizingMask =  UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+    _sourceView.autoresizesSubviews = YES;
+    _sourceView.font = [UIFont fontWithName:@"Courier" size:13.0];
+    _sourceView.textContainerInset = UIEdgeInsetsMake(HTMLViewTopInset, HTMLViewLeftRightInset, 0.0f, HTMLViewLeftRightInset);
+    _sourceView.delegate = self;
+    [self.view addSubview:_sourceView];
+}
+
+- (void)createEditorViewWithFrame:(CGRect)frame
+{
+    NSAssert(!_editorView, @"The editor view must not exist when this method is called!");
+    
+    _editorView = [[UIWebView alloc] initWithFrame:frame];
+    _editorView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    _editorView.delegate = self;
+    _editorView.scalesPageToFit = YES;
+    _editorView.dataDetectorTypes = UIDataDetectorTypeNone;
+    _editorView.backgroundColor = [UIColor clearColor];
+    _editorView.opaque = NO;
+    _editorView.scrollView.bounces = NO;
+    _editorView.usesGUIFixes = YES;
+    _editorView.keyboardDisplayRequiresUserAction = NO;
+    _editorView.scrollView.bounces = YES;
+    //[self startObservingWebViewContentSizeChanges];
+    
+    [self.view addSubview:_editorView];
+}
+
+- (void)setupHTMLEditor
+{
+    NSBundle * bundle = [NSBundle mainBundle];
+    NSURL * editorURL = [bundle URLForResource:@"editor" withExtension:@"html"];
+    [self.editorView loadRequest:[NSURLRequest requestWithURL:editorURL]];
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     
@@ -56,32 +101,11 @@ static CGFloat kDefaultScale = 0.5;
     self.shouldShowKeyboard = YES;
     self.formatHTML = YES;
     
-    self.enabledToolbarItems = [[NSArray alloc] init];
+    self.navigationController.navigationBar.translucent = NO;
     
-    // Source View
-    CGRect frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
-    self.sourceView = [[ZSSTextView alloc] initWithFrame:frame];
+    [self createSourceViewWithFrame:self.view.frame];
+    [self createEditorViewWithFrame:self.view.frame];
     self.sourceView.hidden = YES;
-    self.sourceView.autocapitalizationType = UITextAutocapitalizationTypeNone;
-    self.sourceView.autocorrectionType = UITextAutocorrectionTypeNo;
-    self.sourceView.font = [UIFont fontWithName:@"Courier" size:13.0];
-    self.sourceView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    self.sourceView.autoresizesSubviews = YES;
-    self.sourceView.delegate = self;
-    [self.view addSubview:self.sourceView];
-    
-    // Editor View
-    self.editorView = [[UIWebView alloc] initWithFrame:frame];
-    self.editorView.delegate = self;
-    self.editorView.usesGUIFixes = YES;
-    self.editorView.keyboardDisplayRequiresUserAction = NO;
-    self.editorView.scalesPageToFit = YES;
-    self.editorView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin;
-    self.editorView.dataDetectorTypes = UIDataDetectorTypeNone;
-    self.editorView.scrollView.bounces = NO;
-    self.editorView.backgroundColor = [UIColor whiteColor];
-    [self.view addSubview:self.editorView];
-    
     // Image Picker used to allow the user insert images from the device (base64 encoded)
     self.imagePicker = [[UIImagePickerController alloc] init];
     self.imagePicker.delegate = self;
@@ -101,51 +125,20 @@ static CGFloat kDefaultScale = 0.5;
     [self.toolBarScroll addSubview:self.toolbar];
     self.toolBarScroll.autoresizingMask = self.toolbar.autoresizingMask;
     
-    // Background Toolbar
-    UIToolbar *backgroundToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44)];
-    backgroundToolbar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-    
     // Parent holding view
     self.toolbarHolder = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height, self.view.frame.size.width, 44)];
     self.toolbarHolder.autoresizingMask = self.toolbar.autoresizingMask;
     [self.toolbarHolder addSubview:self.toolBarScroll];
-    [self.toolbarHolder insertSubview:backgroundToolbar atIndex:0];
     
-    // Hide Keyboard
-    if (![self isIpad]) {
-        
-        // Toolbar holder used to crop and position toolbar
-        UIView *toolbarCropper = [[UIView alloc] initWithFrame:CGRectMake(self.view.frame.size.width-44, 0, 44, 44)];
-        toolbarCropper.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin;
-        toolbarCropper.clipsToBounds = YES;
-        
-        // Use a toolbar so that we can tint
-        UIToolbar *keyboardToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(-7, -1, 44, 44)];
-        [toolbarCropper addSubview:keyboardToolbar];
-        
-        self.keyboardItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"ZSSkeyboard.png"] style:UIBarButtonItemStylePlain target:self action:@selector(dismissKeyboard)];
-        keyboardToolbar.items = @[self.keyboardItem];
-        [self.toolbarHolder addSubview:toolbarCropper];
-        
-        UIView *line = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 0.6f, 44)];
-        line.backgroundColor = [UIColor lightGrayColor];
-        line.alpha = 0.7f;
-        [toolbarCropper addSubview:line];
-    }
+
     [self.view addSubview:self.toolbarHolder];
     
     // Build the toolbar
-    [self buildToolbar];
+    //[self buildToolbar];
+    self.enabledToolbarItems = @[];
     
     if (!self.resourcesLoaded) {
-        NSString *filePath = [[NSBundle mainBundle] pathForResource:@"editor" ofType:@"html"];
-        NSData *htmlData = [NSData dataWithContentsOfFile:filePath];
-        NSString *htmlString = [[NSString alloc] initWithData:htmlData encoding:NSUTF8StringEncoding];
-        NSString *source = [[NSBundle mainBundle] pathForResource:@"ZSSRichTextEditor" ofType:@"js"];
-        NSString *jsString = [[NSString alloc] initWithData:[NSData dataWithContentsOfFile:source] encoding:NSUTF8StringEncoding];
-        htmlString = [htmlString stringByReplacingOccurrencesOfString:@"<!--editor-->" withString:jsString];
-        
-        [self.editorView loadHTMLString:htmlString baseURL:self.baseURL];
+        [self setupHTMLEditor];
         self.resourcesLoaded = YES;
     }
     
@@ -217,7 +210,7 @@ static CGFloat kDefaultScale = 0.5;
             [items addObject:@""];
         }
     }
-
+    
     // Bold
     if ((_enabledToolbarItems && [_enabledToolbarItems containsObject:ZSSRichTextEditorToolbarBold]) || (_enabledToolbarItems && [_enabledToolbarItems containsObject:ZSSRichTextEditorToolbarAll])) {
         ZSSBarButtonItem *bold = [[ZSSBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"ZSSbold.png"] style:UIBarButtonItemStylePlain target:self action:@selector(setBold)];
@@ -281,6 +274,17 @@ static CGFloat kDefaultScale = 0.5;
             [items replaceObjectAtIndex:[_enabledToolbarItems indexOfObject:ZSSRichTextEditorToolbarUnderline] withObject:underline];
         } else {
             [items addObject:underline];
+        }
+    }
+    
+    // Show Source
+    if ((_enabledToolbarItems && [_enabledToolbarItems containsObject:ZSSRichTextEditorToolbarViewSource]) || (_enabledToolbarItems && [_enabledToolbarItems containsObject:ZSSRichTextEditorToolbarAll])) {
+        ZSSBarButtonItem *showSource = [[ZSSBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"ZSSviewsource.png"] style:UIBarButtonItemStylePlain target:self action:@selector(showHTMLSource:)];
+        showSource.label = @"source";
+        if (customOrder) {
+            [items replaceObjectAtIndex:[_enabledToolbarItems indexOfObject:ZSSRichTextEditorToolbarViewSource] withObject:showSource];
+        } else {
+            [items addObject:showSource];
         }
     }
     
@@ -371,7 +375,7 @@ static CGFloat kDefaultScale = 0.5;
             [items addObject:paragraph];
         }
     }
-    
+
     // Header 1
     if ((_enabledToolbarItems && [_enabledToolbarItems containsObject:ZSSRichTextEditorToolbarH1]) || (_enabledToolbarItems && [_enabledToolbarItems containsObject:ZSSRichTextEditorToolbarAll])) {
         ZSSBarButtonItem *h1 = [[ZSSBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"ZSSh1.png"] style:UIBarButtonItemStylePlain target:self action:@selector(heading1)];
@@ -437,7 +441,7 @@ static CGFloat kDefaultScale = 0.5;
             [items addObject:h6];
         }
     }
-    
+ 
     // Text Color
     if ((_enabledToolbarItems && [_enabledToolbarItems containsObject:ZSSRichTextEditorToolbarTextColor]) || (_enabledToolbarItems && [_enabledToolbarItems containsObject:ZSSRichTextEditorToolbarAll])) {
         ZSSBarButtonItem *textColor = [[ZSSBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"ZSStextcolor.png"] style:UIBarButtonItemStylePlain target:self action:@selector(textColor)];
@@ -493,6 +497,40 @@ static CGFloat kDefaultScale = 0.5;
         }
     }
     
+    // Insert Link
+    if ((_enabledToolbarItems && [_enabledToolbarItems containsObject:ZSSRichTextEditorToolbarInsertLink]) || (_enabledToolbarItems && [_enabledToolbarItems containsObject:ZSSRichTextEditorToolbarAll])) {
+        ZSSBarButtonItem *insertLink = [[ZSSBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"ZSSlink.png"] style:UIBarButtonItemStylePlain target:self action:@selector(insertLink)];
+        insertLink.label = @"link";
+        if (customOrder) {
+            [items replaceObjectAtIndex:[_enabledToolbarItems indexOfObject:ZSSRichTextEditorToolbarInsertLink] withObject:insertLink];
+        } else {
+            [items addObject:insertLink];
+        }
+    }
+    
+    
+    // Remove Link
+    if ((_enabledToolbarItems && [_enabledToolbarItems containsObject:ZSSRichTextEditorToolbarRemoveLink]) || (_enabledToolbarItems && [_enabledToolbarItems containsObject:ZSSRichTextEditorToolbarAll])) {
+        ZSSBarButtonItem *removeLink = [[ZSSBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"ZSSunlink.png"] style:UIBarButtonItemStylePlain target:self action:@selector(removeLink)];
+        removeLink.label = @"removeLink";
+        if (customOrder) {
+            [items replaceObjectAtIndex:[_enabledToolbarItems indexOfObject:ZSSRichTextEditorToolbarRemoveLink] withObject:removeLink];
+        } else {
+            [items addObject:removeLink];
+        }
+    }
+    
+    // Quick Link
+    if ((_enabledToolbarItems && [_enabledToolbarItems containsObject:ZSSRichTextEditorToolbarQuickLink]) || (_enabledToolbarItems && [_enabledToolbarItems containsObject:ZSSRichTextEditorToolbarAll])) {
+        ZSSBarButtonItem *quickLink = [[ZSSBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"ZSSquicklink.png"] style:UIBarButtonItemStylePlain target:self action:@selector(quickLink)];
+        quickLink.label = @"quickLink";
+        if (customOrder) {
+            [items replaceObjectAtIndex:[_enabledToolbarItems indexOfObject:ZSSRichTextEditorToolbarQuickLink] withObject:quickLink];
+        } else {
+            [items addObject:quickLink];
+        }
+    }
+    /*
     // Indent
     if ((_enabledToolbarItems && [_enabledToolbarItems containsObject:ZSSRichTextEditorToolbarIndent]) || (_enabledToolbarItems && [_enabledToolbarItems containsObject:ZSSRichTextEditorToolbarAll])) {
         ZSSBarButtonItem *indent = [[ZSSBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"ZSSindent.png"] style:UIBarButtonItemStylePlain target:self action:@selector(setIndent)];
@@ -536,50 +574,8 @@ static CGFloat kDefaultScale = 0.5;
             [items addObject:insertImageFromDevice];
         }
     }
-    
-    // Insert Link
-    if ((_enabledToolbarItems && [_enabledToolbarItems containsObject:ZSSRichTextEditorToolbarInsertLink]) || (_enabledToolbarItems && [_enabledToolbarItems containsObject:ZSSRichTextEditorToolbarAll])) {
-        ZSSBarButtonItem *insertLink = [[ZSSBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"ZSSlink.png"] style:UIBarButtonItemStylePlain target:self action:@selector(insertLink)];
-        insertLink.label = @"link";
-        if (customOrder) {
-            [items replaceObjectAtIndex:[_enabledToolbarItems indexOfObject:ZSSRichTextEditorToolbarInsertLink] withObject:insertLink];
-        } else {
-            [items addObject:insertLink];
-        }
-    }
-    
-    // Remove Link
-    if ((_enabledToolbarItems && [_enabledToolbarItems containsObject:ZSSRichTextEditorToolbarRemoveLink]) || (_enabledToolbarItems && [_enabledToolbarItems containsObject:ZSSRichTextEditorToolbarAll])) {
-        ZSSBarButtonItem *removeLink = [[ZSSBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"ZSSunlink.png"] style:UIBarButtonItemStylePlain target:self action:@selector(removeLink)];
-        removeLink.label = @"removeLink";
-        if (customOrder) {
-            [items replaceObjectAtIndex:[_enabledToolbarItems indexOfObject:ZSSRichTextEditorToolbarRemoveLink] withObject:removeLink];
-        } else {
-            [items addObject:removeLink];
-        }
-    }
-    
-    // Quick Link
-    if ((_enabledToolbarItems && [_enabledToolbarItems containsObject:ZSSRichTextEditorToolbarQuickLink]) || (_enabledToolbarItems && [_enabledToolbarItems containsObject:ZSSRichTextEditorToolbarAll])) {
-        ZSSBarButtonItem *quickLink = [[ZSSBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"ZSSquicklink.png"] style:UIBarButtonItemStylePlain target:self action:@selector(quickLink)];
-        quickLink.label = @"quickLink";
-        if (customOrder) {
-            [items replaceObjectAtIndex:[_enabledToolbarItems indexOfObject:ZSSRichTextEditorToolbarQuickLink] withObject:quickLink];
-        } else {
-            [items addObject:quickLink];
-        }
-    }
-    
-    // Show Source
-    if ((_enabledToolbarItems && [_enabledToolbarItems containsObject:ZSSRichTextEditorToolbarViewSource]) || (_enabledToolbarItems && [_enabledToolbarItems containsObject:ZSSRichTextEditorToolbarAll])) {
-        ZSSBarButtonItem *showSource = [[ZSSBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"ZSSviewsource.png"] style:UIBarButtonItemStylePlain target:self action:@selector(showHTMLSource:)];
-        showSource.label = @"source";
-        if (customOrder) {
-            [items replaceObjectAtIndex:[_enabledToolbarItems indexOfObject:ZSSRichTextEditorToolbarViewSource] withObject:showSource];
-        } else {
-            [items addObject:showSource];
-        }
-    }
+    */
+
     
     return [NSArray arrayWithArray:items];
     
@@ -598,9 +594,10 @@ static CGFloat kDefaultScale = 0.5;
     if (self.customZSSBarButtonItems != nil) {
         items = [items arrayByAddingObjectsFromArray:self.customZSSBarButtonItems];
     }
-    
+    CGFloat sizeOfItem = 48.0; //39
     // get the width before we add custom buttons
-    CGFloat toolbarWidth = items.count == 0 ? 0.0f : (CGFloat)(items.count * 39) - 10;
+    CGFloat toolbarWidth = items.count == 0 ? 0.0f : (CGFloat)(items.count * sizeOfItem) - 10;
+    CGFloat toolbarWidth2 = items.count == 0 ? 0.0f : (CGFloat)(items.count * (sizeOfItem-9)) - 10;
     
     if(self.customBarButtonItems != nil)
     {
@@ -614,10 +611,12 @@ static CGFloat kDefaultScale = 0.5;
     self.toolbar.items = items;
     for (ZSSBarButtonItem *item in items) {
         item.tintColor = [self barButtonItemDefaultColor];
+        NSLog(@"%@",item);
     }
     
+    
     self.toolbar.frame = CGRectMake(0, 0, toolbarWidth, 44);
-    self.toolBarScroll.contentSize = CGSizeMake(self.toolbar.frame.size.width, 44);
+    self.toolBarScroll.contentSize = CGSizeMake(toolbarWidth2, 44);
 }
 
 
@@ -878,7 +877,7 @@ static CGFloat kDefaultScale = 0.5;
 }
 
 - (void)insertLink {
-    
+    NSLog(@"Target insertlink");
     // Save the selection location
     [self.editorView stringByEvaluatingJavaScriptFromString:@"zss_editor.prepareInsert();"];
     

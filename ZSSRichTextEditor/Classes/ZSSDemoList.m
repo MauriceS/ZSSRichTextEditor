@@ -56,7 +56,7 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    //if (self.isIPad) return 6;
+    if (self.isIPad) return 6;
     return 5;
 }
 
@@ -113,7 +113,8 @@
         ZSSCustomButtonsViewController *demo4 = [[ZSSCustomButtonsViewController alloc] init];
         [self.navigationController pushViewController:demo4 animated:YES];
     } else if (indexPath.row == 4) {
-        ZSSLargeViewController *demo5 = [[ZSSLargeViewController alloc] init];
+        //ZSSLargeViewController *demo5 = [[ZSSLargeViewController alloc] init];
+        ZSSPlaceholderViewController *demo5 = [ZSSPlaceholderViewController new];
         [self.navigationController pushViewController:demo5 animated:YES];
     } else if (indexPath.row == 5) {
         ZSSDemoViewController *demo1 = [[ZSSDemoViewController alloc] init];

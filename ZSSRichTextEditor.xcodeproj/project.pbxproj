@@ -115,6 +115,7 @@
 		45F860C718A84CFA0011266B /* ZSSunorderedlist@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 45F860A518A84CFA0011266B /* ZSSunorderedlist@2x.png */; };
 		45F860C818A84CFA0011266B /* ZSSviewsource@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 45F860A618A84CFA0011266B /* ZSSviewsource@2x.png */; };
 		519DE0461D364D5800A401E5 /* UIWebView+GUIFixes.m in Sources */ = {isa = PBXBuildFile; fileRef = 519DE0451D364D5800A401E5 /* UIWebView+GUIFixes.m */; };
+		519DE0481D36735600A401E5 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 519DE0471D36735600A401E5 /* MainStoryboard.storyboard */; };
 		BCD4FA311D27E5F100B7BFE7 /* ZSSimageDevice.png in Resources */ = {isa = PBXBuildFile; fileRef = BCD4FA301D27E5F100B7BFE7 /* ZSSimageDevice.png */; };
 		BCD4FA331D27E5FB00B7BFE7 /* ZSSimageDevice@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BCD4FA321D27E5FB00B7BFE7 /* ZSSimageDevice@2x.png */; };
 /* End PBXBuildFile section */
@@ -257,6 +258,7 @@
 		45F860A618A84CFA0011266B /* ZSSviewsource@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ZSSviewsource@2x.png"; path = "Source/Images/ZSSviewsource@2x.png"; sourceTree = "<group>"; };
 		519DE0441D364D5800A401E5 /* UIWebView+GUIFixes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIWebView+GUIFixes.h"; path = "Source/UIWebView+GUIFixes.h"; sourceTree = "<group>"; };
 		519DE0451D364D5800A401E5 /* UIWebView+GUIFixes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIWebView+GUIFixes.m"; path = "Source/UIWebView+GUIFixes.m"; sourceTree = "<group>"; };
+		519DE0471D36735600A401E5 /* MainStoryboard.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = MainStoryboard.storyboard; path = ZSSRichTextEditor/MainStoryboard.storyboard; sourceTree = "<group>"; };
 		BCD4FA301D27E5F100B7BFE7 /* ZSSimageDevice.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ZSSimageDevice.png; sourceTree = "<group>"; };
 		BCD4FA321D27E5FB00B7BFE7 /* ZSSimageDevice@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ZSSimageDevice@2x.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -408,6 +410,7 @@
 		4581EB73184845780048CAB0 = {
 			isa = PBXGroup;
 			children = (
+				519DE0471D36735600A401E5 /* MainStoryboard.storyboard */,
 				23065BF41A06BA67001BA0B0 /* Images.xcassets */,
 				4581EB85184845790048CAB0 /* View Controllers */,
 				4581EB7E184845790048CAB0 /* Frameworks */,
@@ -635,6 +638,7 @@
 				2314CBA2198F4CEC00A126F6 /* 152.png in Resources */,
 				23065BF51A06BA67001BA0B0 /* Images.xcassets in Resources */,
 				45F860AE18A84CFA0011266B /* ZSSh3@2x.png in Resources */,
+				519DE0481D36735600A401E5 /* MainStoryboard.storyboard in Resources */,
 				45F73D3918D7AE9700CD6DBA /* ZSSitalic.png in Resources */,
 				45F73D2E18D7AE9700CD6DBA /* ZSSclearstyle.png in Resources */,
 				45F73D3218D7AE9700CD6DBA /* ZSSh3.png in Resources */,
@@ -729,7 +733,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
@@ -787,7 +791,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -820,7 +824,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;

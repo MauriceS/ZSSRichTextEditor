@@ -24,6 +24,8 @@
 
 - (void)commonSetup
 {
+    self.lineNumbersEnabled = NO;
+    self.lineCursorEnabled = NO;
     _defaultFont = [UIFont fontWithName: @"Menlo-Regular" size:14.0f];
     _boldFont = [UIFont fontWithName:@"Menlo-Bold" size:14.0f];
     _italicFont = [UIFont fontWithName:@"Menlo-Italic" size:14.0f];

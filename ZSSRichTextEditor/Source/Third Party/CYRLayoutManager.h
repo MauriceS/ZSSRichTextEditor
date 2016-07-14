@@ -42,6 +42,7 @@
 
 @property (nonatomic, readonly) CGFloat gutterWidth;
 @property (nonatomic, assign) NSRange selectedRange;
+@property (nonatomic, assign) BOOL shouldHideLineNumbers;
 
 - (CGRect)paragraphRectForRange:(NSRange)range;
 
