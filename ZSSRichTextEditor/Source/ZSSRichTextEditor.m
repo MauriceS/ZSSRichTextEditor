@@ -605,6 +605,7 @@ static CGFloat kDefaultScale = 0.5;
         for(ZSSBarButtonItem *buttonItem in self.customBarButtonItems)
         {
             toolbarWidth += buttonItem.customView.frame.size.width + 11.0f;
+            toolbarWidth2 += buttonItem.customView.frame.size.width + 11.0f;
         }
     }
     
