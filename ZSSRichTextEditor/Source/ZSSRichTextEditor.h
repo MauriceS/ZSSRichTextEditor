@@ -195,4 +195,6 @@ static NSString * const ZSSRichTextEditorToolbarNone = @"com.zedsaid.toolbaritem
  */
 - (void)editorDidScrollWithPosition:(NSInteger)position;
 
+- (void)exitHTMLSourceMode;
+
 @end
