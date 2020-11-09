@@ -274,9 +274,6 @@ zss_editor.setParagraph = function() {
     zss_editor.enabledEditingItems();
 }
 
-// Need way to remove formatBlock
-console.log('WARNING: We need a way to remove formatBlock items');
-
 zss_editor.undo = function() {
     document.execCommand('undo', false, null);
     zss_editor.enabledEditingItems();

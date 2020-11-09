@@ -10,4 +10,9 @@
 
 @implementation ZSSBarButtonItem
 
+-(NSString *)description {
+    return [NSString stringWithFormat:@"Title: %@, enabled: %d, target: %@, action: %@", self.label, self.enabled, self.target, NSStringFromSelector(self.action)];
+    
+}
+
 @end
