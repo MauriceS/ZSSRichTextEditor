@@ -1193,6 +1193,15 @@ static CGFloat kDefaultScale = 0.5;
     }
 }
 
+- (void)exitHTMLSourceMode {
+     if (!self.sourceView.hidden) {
+         [self setHTML:self.sourceView.text];
+         self.sourceView.hidden = YES;
+         self.editorView.hidden = NO;
+         [self enableToolbarItems:YES];
+     }
+ }
+
 - (void)removeFormat {
     NSString *trigger = @"zss_editor.removeFormating();";
     [self.editorView evaluateJavaScript:trigger completionHandler:^(NSString *result, NSError *error) {
